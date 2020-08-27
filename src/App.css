@@ -40,3 +40,13 @@
 .mt-50 {
   margin-top: 50px;
 }
+
+.color-picker {
+  padding: 10px 20px;
+  margin: 10px;
+  cursor: pointer;
+}
+
+.active {
+  border: solid 2px black;
+}

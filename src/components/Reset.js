@@ -1,8 +1,8 @@
 import React from 'react';
 
-function Reset() {
+function Reset(props) {
   return (          
-          <button type="button" className="btn btn-danger">Reset</button> 
+          <button type="button" className="btn btn-danger" onClick={() => props.reset()}>Reset</button> 
   );
 }
 
