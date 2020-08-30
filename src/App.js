@@ -1,24 +1,115 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import getGuid from '../src/libs/guid';
+import TaskForm from './components/TaskForm';
+import Control from './components/Control';
+import TaskList from './components/TaskList';
+import { useState } from 'react';
+import { useEffect } from 'react';
 
 function App() {
+  const [tasks, setTasks] = useState([]);
+  const [isDisplayForm, setIsDisplayForm] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+
+  useEffect(() => {
+    if (localStorage && localStorage.getItem("tasks")) {
+      const localStorageTasks = JSON.parse(localStorage.getItem("tasks"));
+      setTasks(localStorageTasks);
+    }
+  }, [])
+
+  const initTask = () => {
+    const tasks = [
+      { id: getGuid(), name: "Reactjs", status: true },
+      { id: getGuid(), name: "Angularjs", status: false },
+      { id: getGuid(), name: "Vuejs", status: true },
+    ];
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  };
+
+  const addTask = (task) => {
+    if(tasks){
+      const newTask = tasks.find(t => t.id === task.id);
+      //Update Task
+      if(newTask){
+        newTask.name = task.name;
+        newTask.status = task.status;        
+        localStorage.setItem("tasks", JSON.stringify([...tasks]));
+        setTasks([...tasks]);
+
+        setSelectedTask(null);
+        setIsDisplayForm(false);
+        return;
+      }      
+    }
+    //Add Task
+    localStorage.setItem("tasks", JSON.stringify([...tasks, task]));
+    setTasks([...tasks, task]);    
+    setIsDisplayForm(false);
+  }
+
+  const deleteTask = (id) => {    
+    const index = tasks.findIndex(t => t.id === id);
+    if(index === -1){
+      return;      
+    }
+
+    if(!window.confirm("Confirm?")){
+      return;
+    }
+
+    tasks.splice(index, 1);
+    localStorage.setItem("tasks", JSON.stringify([...tasks]));
+    setTasks([...tasks]);
+    setIsDisplayForm(false);
+  }
+
+  const updateTask = (id) => {    
+    const task = tasks.find(t => t.id === id);
+    if(!task){
+      return;      
+    }
+    setSelectedTask(task);    
+    setIsDisplayForm(true);
+  }  
+
+  const updateTaskStatus = (id) => {
+    const task = tasks.find(t => t.id === id);
+    if(!task){
+      return;      
+    }
+    task.status = !task.status;
+    localStorage.setItem("tasks", JSON.stringify([...tasks]));
+    setTasks([...tasks]);
+    setIsDisplayForm(false);
+  }
+
+  const elementTaskForm = isDisplayForm ? <TaskForm selectedTask={selectedTask} setIsDisplayForm={setIsDisplayForm} addTask={addTask}/> : null;
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="container">
+      <div className="row text-center">
+        <h1>Task Management</h1>
+      </div>
+      <div className="row">
+        <hr />
+      </div>
+      <div className="row">
+        <div className="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+          {elementTaskForm}
+        </div>
+        <div className={isDisplayForm ? "col-xs-8 col-sm-8 col-md-8 col-lg-8" : "col-xs-12 col-sm-12 col-md-12 col-lg-12"} >
+          <div className="row">
+            <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+              <button type="button" className="btn btn-primary" onClick={() => {setSelectedTask(null); setIsDisplayForm(!isDisplayForm);}}><span className="glyphicon glyphicon-plus"></span>&nbsp;Add Task</button>
+              {/* &nbsp;
+              <button type="button" className="btn btn-warning" onClick={() => initTask()}>Init Task</button> */}
+            </div>
+          </div>
+          <Control />
+          <TaskList tasks={tasks} updateTaskStatus={updateTaskStatus} deleteTask={deleteTask} updateTask={updateTask}/>
+        </div>
+      </div>
     </div>
   );
 }
