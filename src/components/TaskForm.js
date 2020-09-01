@@ -53,7 +53,6 @@ function TaskForm(props) {
                 </form>
             </div>
         </div>
-
     );
 }
 

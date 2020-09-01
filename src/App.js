@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import getGuid from '../src/libs/guid';
+//import getGuid from '../src/libs/guid';
 import TaskForm from './components/TaskForm';
 import Control from './components/Control';
 import TaskList from './components/TaskList';
@@ -11,8 +11,9 @@ function App() {
   const [tasks, setTasks] = useState([]);
   const [isDisplayForm, setIsDisplayForm] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
-  const [filterName, setFilterName] = useState("");
-  const [filterStatus, setFilterStatus] = useState(-1);
+  const [filterInfo, setFilterInfo] = useState({ name: "", status: -1 });
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [sortInfo, setSortInfo] = useState({ by: "status", value: 1 });
 
   useEffect(() => {
     if (localStorage && localStorage.getItem("tasks")) {
@@ -21,14 +22,14 @@ function App() {
     }
   }, [])
 
-  const initTask = () => {
+  /* const initTask = () => {
     const tasks = [
       { id: getGuid(), name: "Reactjs", status: true },
       { id: getGuid(), name: "Angularjs", status: false },
       { id: getGuid(), name: "Vuejs", status: true },
     ];
     localStorage.setItem("tasks", JSON.stringify(tasks));
-  };
+  }; */
 
   const addTask = (task) => {
     if (tasks) {
@@ -87,13 +88,23 @@ function App() {
     setIsDisplayForm(false);
   }
 
-  const filterChange = (name, status) => {
-    setFilterName(name);
-    setFilterStatus(status);
+  const filterChange = (filterName, filterStatus) => {
+    setFilterInfo({ name: filterName, status: filterStatus });
+  }
+
+  const searchChange = (keyword) => {
+    setSearchKeyword(keyword);
+  }
+
+  const sortChange = (sortBy, sortValue) => {
+    setSortInfo({ by: sortBy, value: sortValue });
   }
 
   const elementTaskForm = isDisplayForm ? <TaskForm selectedTask={selectedTask} setIsDisplayForm={setIsDisplayForm} addTask={addTask} /> : null;
-  const filteredTasks = [...tasks].filter(t => (!filterName || t.name.toLowerCase().indexOf(filterName) > -1) && (filterStatus === -1 || t.status === (filterStatus === 1)));
+  const filteredTasks = [...tasks]
+    .filter(t => (!searchKeyword || t.name.toLowerCase().indexOf(searchKeyword) > -1))
+    .filter(t => (!filterInfo.name || t.name.toLowerCase().indexOf(filterInfo.name) > -1) && (filterInfo.status === -1 || t.status === (filterInfo.status === 1)))
+    .sort((x, y) => x[sortInfo.by] >= y[sortInfo.by] ? sortInfo.value : -(sortInfo.value));
 
   return (
     <div className="container">
@@ -115,8 +126,12 @@ function App() {
               <button type="button" className="btn btn-warning" onClick={() => initTask()}>Init Task</button> */}
             </div>
           </div>
-          <Control />
-          <TaskList tasks={filteredTasks} updateTaskStatus={updateTaskStatus} deleteTask={deleteTask} updateTask={updateTask} filterChange={filterChange} />
+          <div className="row mt-10">
+            <Control searchChange={searchChange} sortInfo={sortInfo} sortChange={sortChange} />
+          </div>
+          <div className="row mt-10">
+            <TaskList tasks={filteredTasks} updateTaskStatus={updateTaskStatus} deleteTask={deleteTask} updateTask={updateTask} filterChange={filterChange} />
+          </div>
         </div>
       </div>
     </div>
