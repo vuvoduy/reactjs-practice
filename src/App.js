@@ -102,8 +102,8 @@ function App() {
 
   const elementTaskForm = isDisplayForm ? <TaskForm selectedTask={selectedTask} setIsDisplayForm={setIsDisplayForm} addTask={addTask} /> : null;
   const filteredTasks = [...tasks]
-    .filter(t => (!searchKeyword || t.name.toLowerCase().indexOf(searchKeyword) > -1))
-    .filter(t => (!filterInfo.name || t.name.toLowerCase().indexOf(filterInfo.name) > -1) && (filterInfo.status === -1 || t.status === (filterInfo.status === 1)))
+    .filter(t => (!searchKeyword || t.name.toLowerCase().indexOf(searchKeyword.toLowerCase()) > -1))
+    .filter(t => (!filterInfo.name || t.name.toLowerCase().indexOf(filterInfo.name.toLowerCase()) > -1) && (filterInfo.status === -1 || t.status === (filterInfo.status === 1)))
     .sort((x, y) => x[sortInfo.by] >= y[sortInfo.by] ? sortInfo.value : -(sortInfo.value));
 
   return (
