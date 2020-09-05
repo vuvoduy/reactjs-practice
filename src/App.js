@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.css';
+import {AppProvider} from './contexts/AppContext';
 //import getGuid from '../src/libs/guid';
 import TaskForm from './components/TaskForm';
 import Control from './components/Control';
@@ -100,13 +101,14 @@ function App() {
     setSortInfo({ by: sortBy, value: sortValue });
   }
 
-  const elementTaskForm = isDisplayForm ? <TaskForm selectedTask={selectedTask} setIsDisplayForm={setIsDisplayForm} addTask={addTask} /> : null;
+  const elementTaskForm = isDisplayForm ? <TaskForm /> : null;
   const filteredTasks = [...tasks]
     .filter(t => (!searchKeyword || t.name.toLowerCase().indexOf(searchKeyword.toLowerCase()) > -1))
     .filter(t => (!filterInfo.name || t.name.toLowerCase().indexOf(filterInfo.name.toLowerCase()) > -1) && (filterInfo.status === -1 || t.status === (filterInfo.status === 1)))
     .sort((x, y) => x[sortInfo.by] >= y[sortInfo.by] ? sortInfo.value : -(sortInfo.value));
 
   return (
+    <AppProvider value={{filteredTasks, updateTaskStatus, deleteTask, updateTask, filterChange, selectedTask, setIsDisplayForm, addTask, searchChange, sortInfo, sortChange}}>    
     <div className="container">
       <div className="row text-center">
         <h1>Task Management</h1>
@@ -127,14 +129,15 @@ function App() {
             </div>
           </div>
           <div className="row mt-10">
-            <Control searchChange={searchChange} sortInfo={sortInfo} sortChange={sortChange} />
+            <Control />
           </div>
           <div className="row mt-10">
-            <TaskList tasks={filteredTasks} updateTaskStatus={updateTaskStatus} deleteTask={deleteTask} updateTask={updateTask} filterChange={filterChange} />
+            <TaskList />
           </div>
         </div>
       </div>
     </div>
+    </AppProvider>
   );
 }
 

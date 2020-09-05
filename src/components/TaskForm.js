@@ -1,29 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import getGuid from '../../src/libs/guid';
 import { useEffect } from 'react';
-
-function TaskForm(props) {
+import AppContext from '../contexts/AppContext';
+function TaskForm() {
     const [name, setName] = useState("");
     const [status, setStatus] = useState(true);
-
+    const appContext = useContext(AppContext);
+    const {selectedTask, setIsDisplayForm, addTask} = appContext;    
     useEffect(() => {
-        if(props.selectedTask){
-            setName(props.selectedTask.name);
-            setStatus(props.selectedTask.status);
+        if(selectedTask){
+            setName(selectedTask.name);
+            setStatus(selectedTask.status);
         }        
-    }, [props.selectedTask])
+    }, [selectedTask])
 
-    const addTask = (e) => {
+    const submit = (e) => {
         e.preventDefault();       
-        const task = {id: props.selectedTask ? props.selectedTask.id : getGuid(), name: name, status: status};
-        props.addTask(task);
+        const task = {id: selectedTask ? selectedTask.id : getGuid(), name: name, status: status};
+        addTask(task);
         setName("");
         setStatus(true);
     }
     
     const cancel = (e) => {
         e.preventDefault();
-        if(!props.selectedTask){
+        if(!selectedTask){
             setName("");
             setStatus(true);
         }   
@@ -32,10 +33,10 @@ function TaskForm(props) {
     return (
         <div className="panel panel-primary">
             <div className="panel-heading">
-                <h3 className="panel-title">{props.selectedTask && props.selectedTask.id ? "Update" : "Add"} Task<a role="button" className="pull-right" onClick={() => props.setIsDisplayForm(false)}><i className="fa fa-times-circle"></i></a></h3>                
+                <h3 className="panel-title">{selectedTask && selectedTask.id ? "Update" : "Add"} Task<a role="button" className="pull-right" onClick={() => setIsDisplayForm(false)}><i className="fa fa-times-circle"></i></a></h3>                
             </div>
             <div className="panel-body">
-                <form onSubmit={(e) => addTask(e)} onReset={(e) => cancel(e)}>
+                <form onSubmit={(e) => submit(e)} onReset={(e) => cancel(e)}>
                     <div className="form-group">
                         <label>Name</label>
                         <input type="text" className="form-control" required="required" placeholder="Input Name" value={name} onChange={(e) => setName(e.target.value)}/>
